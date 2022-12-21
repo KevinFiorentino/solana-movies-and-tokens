@@ -1,5 +1,5 @@
 [package]
-name = "multi-account-program"
+name = "solana-multi-account-program"
 version = "0.1.0"
 edition = "2021"
 
