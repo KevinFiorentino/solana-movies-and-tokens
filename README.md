@@ -1,11 +1,11 @@
-# Solana Movie Review Program
+# Solana Multi Account Program
 
 ### Deploy Program Localnet
 
 - `solana config set -u l`
 - `solana-test-validator` (on another terminal)
 - `cargo build-sbf`
-- `solana program deploy target/deploy/movie_review_comments.so`
+- `solana program deploy target/deploy/multi_account_program.so`
 
 ### Usage Client
 
