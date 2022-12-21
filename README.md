@@ -1,5 +1,15 @@
 # Solana Movie Review Program
 
-### Install Project
+### Deploy Program Localnet
 
-- cargo build-sbf
+- `solana config set -u l`
+- `solana-test-validator` (on another terminal)
+- `cargo build-sbf`
+- `solana program deploy target/deploy/movie_review_comments.so`
+
+### Usage Client
+
+- Update the program address in `utils/constants.ts`
+- Check the endpoint in `WalletContextProvider.tsx` as `http://127.0.0.1:8899`
+- Change Phantom network to `localhost`
+- Get localhost SOL with `solana airdrop 2 PHANTOM_WALLET_ADDRESS`
