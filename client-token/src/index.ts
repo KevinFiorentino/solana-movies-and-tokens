@@ -3,7 +3,7 @@ import * as web3 from "@solana/web3.js"
 import * as splToken from "@solana/spl-token"
 
 const PROGRAM_ID = new web3.PublicKey(
-  "BGwUCcrhHJtEG3Y3ep4u1q3WxjuFVMngsDAixxQANxh9"
+  "6P9dUFAWWXzWDgeuS17Cypnnf6WMS9oBvw1UGryc9Gn2"
 )
 
 async function initializeProgramTokenMint(
@@ -65,7 +65,7 @@ async function initializeProgramTokenMint(
 }
 
 async function main() {
-  const connection = new web3.Connection("http://localhost:8899");
+  const connection = new web3.Connection(web3.clusterApiUrl("devnet")) // new web3.Connection("http://localhost:8899")
   const signer = await initializeKeypair(connection)
 
   const txid = await initializeProgramTokenMint(connection, signer, PROGRAM_ID)

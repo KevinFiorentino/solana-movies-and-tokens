@@ -6,6 +6,7 @@ use crate::state::{
     MovieCommentCounter,
 };
 use borsh::BorshSerialize;
+use solana_program::native_token::LAMPORTS_PER_SOL;
 use solana_program::{
     account_info::{next_account_info, AccountInfo},
     borsh::try_from_slice_unchecked,
@@ -17,7 +18,6 @@ use solana_program::{
     system_instruction,
     sysvar::{rent::Rent, Sysvar, rent::ID as RENT_PROGRAM_ID},
     system_program::ID as SYSTEM_PROGRAM_ID,
-    native_token::LAMPORTS_PER_SOL,
 };
 use spl_associated_token_account::get_associated_token_address;
 use spl_token::{instruction::{initialize_mint}, ID as TOKEN_PROGRAM_ID};
@@ -82,31 +82,6 @@ pub fn add_movie_review(
     if pda != *pda_account.key {
         msg!("Invalid seeds for PDA");
         return Err(ProgramError::InvalidArgument);
-    }
-
-    msg!("deriving mint authority");
-    let (mint_pda, _mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
-    let (mint_auth_pda, mint_auth_bump) =
-        Pubkey::find_program_address(&[b"token_auth"], program_id);
-
-    if *token_mint.key != mint_pda {
-        msg!("Incorrect token mint");
-        return Err(ReviewError::IncorrectAccountError.into());
-    }
-
-    if *mint_auth.key != mint_auth_pda {
-        msg!("Mint passed in and mint derived do not match");
-        return Err(ReviewError::InvalidPDA.into());
-    }
-
-    if *user_ata.key != get_associated_token_address(initializer.key, token_mint.key) {
-        msg!("Incorrect token mint");
-        return Err(ReviewError::IncorrectAccountError.into());
-    }
-
-    if *token_program.key != TOKEN_PROGRAM_ID {
-        msg!("Incorrect token program");
-        return Err(ReviewError::IncorrectAccountError.into());
     }
 
     if rating > 5 || rating < 1 {
@@ -205,25 +180,49 @@ pub fn add_movie_review(
     counter_data.discriminator = MovieCommentCounter::DISCRIMINATOR.to_string();
     counter_data.counter = 0;
     counter_data.is_initialized = true;
-
     msg!("comment count: {}", counter_data.counter);
     counter_data.serialize(&mut &mut pda_counter.data.borrow_mut()[..])?;
 
+    // mint tokens here
+    msg!("deriving mint authority");
+    let (mint_pda, mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
+    let (mint_auth_pda, _mint_auth_bump) = Pubkey::find_program_address(&[b"token_auth"], program_id);
+
+    if *token_mint.key != mint_pda {
+        msg!("Incorrect token mint");
+        return Err(ReviewError::IncorrectAccountError.into());
+    }
+
+    if *mint_auth.key != mint_auth_pda {
+        msg!("Mint passed in and mint derived do not match");
+        return Err(ReviewError::InvalidPDA.into());
+    }
+
+    if *user_ata.key != get_associated_token_address(initializer.key, token_mint.key) {
+        msg!("Incorrect token mint");
+        return Err(ReviewError::IncorrectAccountError.into());
+    }
+
+    if *token_program.key != TOKEN_PROGRAM_ID {
+        msg!("Incorrect token program");
+        return Err(ReviewError::IncorrectAccountError.into());
+    }
+
     msg!("Minting 10 tokens to User associated token account");
     invoke_signed(
-        // Instruction
+        // instruction
         &spl_token::instruction::mint_to(
             token_program.key,
             token_mint.key,
             user_ata.key,
             mint_auth.key,
             &[],
-            10*LAMPORTS_PER_SOL,
-        )?, // ? unwraps and returns the error if there is one
-        // Account_infos
+            10 * LAMPORTS_PER_SOL,
+        )?,
+        // account_infos
         &[token_mint.clone(), user_ata.clone(), mint_auth.clone()],
-        // Seeds 
-        &[&[b"token_auth", &[mint_auth_bump]]],
+        // seeds
+        &[&[b"token_auth", &[mint_bump]]],
     )?;
 
     Ok(())
@@ -451,8 +450,7 @@ pub fn initialize_token_mint(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     let (mint_pda, mint_bump) = Pubkey::find_program_address(&[b"token_mint"], program_id);
     // Derive the mint authority so we can validate it
     // The seed is just "token_auth"
-    let (mint_auth_pda, _mint_auth_bump) =
-        Pubkey::find_program_address(&[b"token_auth"], program_id);
+    let (mint_auth_pda, _mint_auth_bump) = Pubkey::find_program_address(&[b"token_auth"], program_id);
 
     msg!("Token mint: {:?}", mint_pda);
     msg!("Mint authority: {:?}", mint_auth_pda);
