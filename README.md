@@ -5,4 +5,4 @@
 - `solana config set -u l`
 - `solana-test-validator` (on another terminal)
 - `cargo build-sbf`
-- `solana program deploy target/deploy/multi_account_program.so`
+- `solana program deploy target/deploy/solana_movies_and_tokens.so`

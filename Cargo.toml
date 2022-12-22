@@ -1,5 +1,5 @@
 [package]
-name = "solana-multi-account-program"
+name = "solana-movies-and-tokens"
 version = "0.1.0"
 edition = "2021"
 
