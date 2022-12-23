@@ -13,3 +13,7 @@
 - `solana-test-validator` (on another terminal)
 - `cargo build-sbf`
 - `solana program deploy target/deploy/solana_movies_and_tokens.so`
+
+### Test Program
+
+- `cargo test-bpf`
