@@ -1,4 +1,4 @@
-# Solana Multi Account Program
+# Solana Native Movies
 
 #### Usage
 
@@ -6,6 +6,7 @@
 2. Initialize token mint (see client-token)
 3. Create movies review (see client-movie-review)
 4. Receive tokens for every movie review or comment
+5. See token on Phantom
 
 ### Deploy Program
 
